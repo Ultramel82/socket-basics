@@ -11,7 +11,8 @@ io.on('connection', function(socket){
 
   socket.on('message', function (message) {
   	console.log('Message Received ' + message.text);
-  	socket.broadcast.emit('message', message); //to all but the sender
+  	//socket.broadcast.emit('message', message); //to all but the sender
+  	io.sockets.emit('message', message);
   });
 
 	//server is listening for message
