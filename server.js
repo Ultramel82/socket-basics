@@ -8,6 +8,17 @@ app.use(express.static(__dirname + '/public'));
 
 io.on('connection', function(socket){
   console.log('a user connected');
+
+  socket.on('message', function (message) {
+  	console.log('Message Received ' + message.text);
+  	socket.broadcast.emit('message', message); //to all but the sender
+  });
+
+	//server is listening for message
+	socket.emit('message', {
+		text: 'Welcome to the chat application'
+	});
+
 });
 
 http.listen(PORT, function(){
