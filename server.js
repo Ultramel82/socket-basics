@@ -6,12 +6,10 @@ var io = require('socket.io')(http);
 
 app.use(express.static(__dirname + '/public'));
 
-io.on('connection', function () {
-	console.log('User connected via socket.io!');
+io.on('connection', function(socket){
+  console.log('a user connected');
 });
 
-http.listen(PORT, function () {
-	console.log('Server started!');
+http.listen(PORT, function(){
+  console.log('listening on *:3000');
 });
-
-
