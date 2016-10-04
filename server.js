@@ -14,9 +14,23 @@ var clientInfo = {
 io.on('connection', function(socket){
   console.log('a user connected');
 
+  socket.on('disconnect', function () {
+      var userData = clientInfo[socket.id];
+
+      if (typeof userData !== 'undefined') {
+          socket.leave(userData.room);
+          io.to(userData.room).emit('message', {
+              name: 'System',
+              text: userData.name + ' has left.',
+              timestamp: moment().valueOf() 
+          });
+          delete clientInfo[socket.id];
+      }
+  });
+
   // When client connects to socket successfully, it makes a request to the room the user picked
   socket.on('joinRoom', function (req) { //req is the object that is coming from the frontend
-      clientInfo[socket.id] = req;
+      clientInfo[socket.id] = req; //[] means it is dynamic
 
       socket.join(req.room); //connects the user to the specific room
       socket.broadcast.to(req.room).emit('message', {
