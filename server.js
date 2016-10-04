@@ -7,8 +7,31 @@ var moment = require('moment');
 
 app.use(express.static(__dirname + '/public'));
 
-var clientInfo = {
+var clientInfo = {};
 
+// Sends current users to provided socket
+function sendCurrentUsers(socket) {
+    var info = clientInfo[socket.id];
+    var users = [];
+
+    if (typeof info === 'undefined') {
+        return;
+    }
+
+    //Object.keys returns an array of all the methods in the object
+    Object.keys(clientInfo).forEach(function (socketId) {
+        var userInfo = clientInfo[socketId];
+
+        if (info.room === userInfo.room) {
+            users.push(userInfo.name);
+        }        
+    }); 
+
+    socket.emit('message', {
+        name: 'System',
+        text: 'Current Users: ' + users.join(', '),
+        timestamp: moment().valueOf()
+    });
 };
 
 io.on('connection', function(socket){
@@ -43,9 +66,17 @@ io.on('connection', function(socket){
   socket.on('message', function (message) {
   	console.log('Message Received ' + message.text);
   	
-  	message.timestamp = moment().valueOf();
-  	//socket.broadcast.emit('message', message); //to all but the sender
-  	io.to(clientInfo[socket.id].room).emit('message', message)
+    if (message.text === '@currentUsers') {
+        sendCurrentUsers(socket);
+    }
+    else
+    {
+        message.timestamp = moment().valueOf();
+        //socket.broadcast.emit('message', message); //to all but the sender
+        io.to(clientInfo[socket.id].room).emit('message', message)
+    };
+
+  	
   });
 
   //timestamp property - JS timestamp (milliseconds)
