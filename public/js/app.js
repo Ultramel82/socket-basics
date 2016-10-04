@@ -4,24 +4,32 @@ var room = getQueryVariable('room');
 
 console.log(name + ' joined ' + room);
 
+// UPDATE ROOM NAME
+jQuery('.room-title').text('Room Name: ' + room);
+
 socket.on('connect', function () {
 	console.log('Connected to Socket IO Server');
+	socket.emit('joinRoom', {
+		name: name,
+		room: room
+	});
 });
 
+// LISTEN FOR MESSAGE
 socket.on('message', function (message) {
 	var momentTimestamp = moment.utc(message.timestamp);
 	var $message = jQuery('.messages');
+	
 
 	console.log('New Message: ');
 	console.log(message.text);
 
 	$message.append('<div style=\'background-color:#FF0000;\'><p><strong>' + message.name + ' ' + momentTimestamp.local().format('h:mm a') + '</strong></p></div>')
 	$message.append('<p>' + message.text + '</p>');
-	//$message.append('<p><strong>' + momentTimestamp.local().format('h:mm a') + ':</strong> ' + message.text + '</p>'); //. = class # = id
-
+	
 });
 
-// Handles submitting of new message
+// HANDLES SUBMITTING OF NEW MESSAGE
 var $form = jQuery('#message-form'); //$ the variable stores an jQuery instance of a variable (this variable has access to all the methods you can access on the specific jQuery element)
 
 $form.on('submit', function (event) {
@@ -33,3 +41,4 @@ $form.on('submit', function (event) {
 	});
 	$message.val('');
 });
+
